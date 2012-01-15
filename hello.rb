@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 #puts "Hello World!";
-
+#test
 %w(rubygems wordnik).each {|lib| require lib}
 
 	Wordnik.configure do |config|
