@@ -1,8 +1,23 @@
 #!/usr/bin/ruby
 #puts "Hello World!";
+require 'net/http'
+require 'net/http'
+
+	proxy_addr = 'proxy.iiit.ac.in'
+	proxy_port = 8080
+
+          uri = URI('http://www.google.com/')
+          res=Net::HTTP::Proxy(proxy_addr, proxy_port)::Get.new(uri.request_uri) # => String
+          res['User-Agent']='Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.204 Safari/534.16'
+          req = Net::HTTP::Proxy(proxy_addr, proxy_port).start(uri.hostname, uri.port) {|http|
+                    http.request(res)
+                    }
+
+          puts res.body
 
 %w(rubygems wordnik).each {|lib| require lib}
 
+	api_key='26878d3b045c48a34970c008e2806530a3909c4a072354f3e'
 	Wordnik.configure do |config|
 	    config.api_key = '26878d3b045c48a34970c008e2806530a3909c4a072354f3e'
 	    config.username = 'atif'
@@ -11,17 +26,23 @@
 	
 	
 #	Wordnik.word
-#
-	r=Wordnik.word();
-	if ARGV[0]==nil
-		w=Wordnik.words.get_word_of_the_day()
-		r.get_definitions(w);
-		r.get_examples(w);
-		r.get_related(w, :type => 'antonym');
-		r.get_related(w, :type => 'synonym');
-	end
 	if ARGV[0]=='ant'
-		x=r.get_related(ARGV[1], :type => 'antonym');
+		ur='http://api.wordnik.com/v4/word.json/'+ARGV[1]+'/related?type=antonym&api_key='+api_key
+		uri = URI(ur)
+		res=Net::HTTP::Proxy(proxy_addr, proxy_port)::Get.new(uri.request_uri) # => String
+		res['User-Agent']='Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.204 Safari/534.16'
+		req = Net::HTTP::Proxy(proxy_addr, proxy_port).start(uri.hostname, uri.port) {|http|
+			http.request(res)
+		}
+#		puts req.body
+		i=req.body.split("\"");
+		j=3
+		while i[j]!='relationshipType' && j<i.size()
+			if i[j]!=',' and i[j]!='],'
+				puts i[j]
+			end
+			j=j+1;
+		end
 	end
 	if ARGV[0]=='def'
 		r.get_definitions(ARGV[1]);
