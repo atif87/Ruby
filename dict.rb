@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 #puts "Hello World!";
 require 'net/http'
 require 'net/http'
@@ -34,7 +34,6 @@ require 'net/http'
 		req = Net::HTTP::Proxy(proxy_addr, proxy_port).start(uri.hostname, uri.port) {|http|
 			http.request(res)
 		}
-#		puts req.body
 		i=req.body.split("\"");
 		j=3
 		while i[j]!='relationshipType' && j<i.size()
@@ -45,13 +44,54 @@ require 'net/http'
 		end
 	end
 	if ARGV[0]=='def'
-		r.get_definitions(ARGV[1]);
+		ur='http://api.wordnik.com/v4/word.json/'+ARGV[1]+'/definitions?includeRelated=false&includeTags=false&useCanonical=false&api_key='+api_key
+		uri = URI(ur)
+		res=Net::HTTP::Proxy(proxy_addr, proxy_port)::Get.new(uri.request_uri) # => String
+		res['User-Agent']='Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.204 Safari/534.16'
+		req = Net::HTTP::Proxy(proxy_addr, proxy_port).start(uri.hostname, uri.port) {|http|
+			http.request(res)
+		}
+		i=req.body.split("\"text\":");
+		j=1;
+		while j<i.size
+			b=i[j].split("\"score\":")
+			puts b[0]
+			j=j+1;
+		end
 	end
 	if ARGV[0]=='ex'
-		r.get_examples(ARGV[1]);
-	end	
+		ur='http://api.wordnik.com/v4/word.json/'+ARGV[1]+'/examples&api_key='+api_key
+		uri = URI(ur)
+		res=Net::HTTP::Proxy(proxy_addr, proxy_port)::Get.new(uri.request_uri) # => String
+		res['User-Agent']='Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.204 Safari/534.16'
+		req = Net::HTTP::Proxy(proxy_addr, proxy_port).start(uri.hostname, uri.port) {|http|
+			http.request(res)
+		}
+		i=req.body;
+		puts i
+		j=1;
+#		while j<i.size
+#			b=i[j].split("\"score\":")
+#			puts b[0]
+#			j=j+1;
+#		end
+	end
 	if ARGV[0]=='syn'
-		r.get_related(ARGV[1], :type => 'synonym');
+		ur='http://api.wordnik.com/v4/word.json/'+ARGV[1]+'/related?type=synonym&api_key='+api_key
+		uri = URI(ur)
+		res=Net::HTTP::Proxy(proxy_addr, proxy_port)::Get.new(uri.request_uri) # => String
+		res['User-Agent']='Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.204 Safari/534.16'
+		req = Net::HTTP::Proxy(proxy_addr, proxy_port).start(uri.hostname, uri.port) {|http|
+			http.request(res)
+		}
+		i=req.body.split("\"");
+		j=3
+		while i[j]!='relationshipType' && j<i.size()
+			if i[j]!=',' and i[j]!='],'
+				puts i[j]
+			end
+			j=j+1;
+		end
 	end
 	if ARGV[0]=='dict'
 		r.get_definitions(ARGV[1]);
