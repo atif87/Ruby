@@ -26,7 +26,7 @@ require 'net/http'
 	
 	
 #	Wordnik.word
-	if ARGV[0]=='ant'
+	if ARGV[1]=='ant'
 		ur='http://api.wordnik.com/v4/word.json/'+ARGV[1]+'/related?type=antonym&api_key='+api_key
 		uri = URI(ur)
 		res=Net::HTTP::Proxy(proxy_addr, proxy_port)::Get.new(uri.request_uri) # => String
@@ -60,21 +60,21 @@ require 'net/http'
 		end
 	end
 	if ARGV[0]=='ex'
-		ur='http://api.wordnik.com/v4/word.json/'+ARGV[1]+'/examples&api_key='+api_key
+		ur='http://api.wordnik.com/v4/word.json/'+ARGV[1]+'/definitions?includeRelated=true&includeTags=false&useCanonical=false&api_key='+api_key
 		uri = URI(ur)
 		res=Net::HTTP::Proxy(proxy_addr, proxy_port)::Get.new(uri.request_uri) # => String
 		res['User-Agent']='Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.204 Safari/534.16'
 		req = Net::HTTP::Proxy(proxy_addr, proxy_port).start(uri.hostname, uri.port) {|http|
 			http.request(res)
 		}
-		i=req.body;
-		puts i
+		i=req.body.split("\"text\":");
+
 		j=1;
-#		while j<i.size
-#			b=i[j].split("\"score\":")
-#			puts b[0]
-#			j=j+1;
-#		end
+		while j<i.size
+			b=i[j].split("\"score\":")
+			puts b[0]
+			j=j+1;
+		end
 	end
 	if ARGV[0]=='syn'
 		ur='http://api.wordnik.com/v4/word.json/'+ARGV[1]+'/related?type=synonym&api_key='+api_key
