@@ -138,15 +138,18 @@ require 'net/http'
 		list=3;
 		while count<j
 			input=STDIN.gets
+			if input==word
+				puts 'You Win'
+			end	
 			i=0;
 			if s
-			while(i< (s.size))
-				if s[i]==input
-					puts 'You Win'
-					return
+				while(i< (s.size))
+					if s[i]==input
+						puts 'You Win'
+						return
+					end
+					i=i+1;
 				end
-				i=i+1;
-			end
 			end
 			if input =='quit'
 				puts word
@@ -170,6 +173,7 @@ require 'net/http'
 			count=count+1
 #		puts count
 		end
+		puts 'The word is:'+word
 		puts 'You Lose'
 	end
 
@@ -191,6 +195,27 @@ require 'net/http'
 	end
 	if ARGV[0]=='def'
 		puts definitions(ARGV[1])
+		url='http://api.wordnik.com/v4/words.json/search?caseSensitive=true&limit=10&query='+ARGV[1]+'&skip=0&api_key='+api_key
+		h=Hash.new(0)
+		
+		body=content(url)
+#puts body
+		hist= body.split('},{')
+		k=0;
+		sugg=[];
+		while k<hist.size
+			str=hist[k].split('wordstring')
+			x= str[1].delete "\""
+			y=str[0].split("count")
+			height=y[1].delete "\""
+			h[(x.delete ":").delete "}]"]=((height.delete ",").delete ":").to_i
+			if h[(x.delete ":").delete "}]"]>h[ARGV[1]]
+				sugg=[sugg,((x.delete ":").delete "}]")]
+			end
+			k=k+1;
+		end
+		puts 'do you mean'
+		puts sugg
 	end
 	if ARGV[0]=='ex'
 		puts example(ARGV[1])
@@ -218,6 +243,5 @@ require 'net/http'
 		url='http://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&api_key='+api_key
 		body=content(url)
 		a= body.split("\"word\":")
-#puts (a[1].delete('}')).delete('\"')
 		play((a[1].delete('}')).delete('\"'))
 	end
