@@ -24,13 +24,15 @@ require 'net/http'
 		body=content(ur)
 		j=3	
 		i=body.split("\"");
-
+		returnstrin=[]
 		while i[j]!='relationshipType' && j<i.size()
 			if i[j]!=',' and i[j]!='],'
-				puts i[j]
+#				puts i[j]
+				returnstring=[returnstring,i[j]]
 			end
 			j=j+1;
 		end
+		return returnstring
 
 	end
 	def synonym(word)
@@ -38,13 +40,16 @@ require 'net/http'
 		ur='http://api.wordnik.com/v4/word.json/'+word+'/related?type=synonym&api_key='+api_key
 		body=content(ur)
 		i=body.split("\"");
+		returnstrin=[]
 		j=3
 		while i[j]!='relationshipType' && j<i.size()
 			if i[j]!=',' and i[j]!='],'
-				puts i[j]
+#puts i[j]
+				returnstring=[returnstring,i[j]]
 			end
 			j=j+1;
 		end
+		return returnstring
 
 	end
 	def definitions(word)
@@ -53,13 +58,16 @@ require 'net/http'
 		body=content(ur);
 		i=body.split("\"text\":");
 		j=1;
+		returnstrin=[]
 		while j<i.size
 			b=i[j].split("\"score\":")
 			if !b[0].index('}')
-				puts b[0]
+#	puts b[0]
+				returnstring=[returnstring,b[0]]
 			end
 			j=j+1;
 		end
+		return returnstring
 	end
 	def example(word)
 		api_key='26878d3b045c48a34970c008e2806530a3909c4a072354f3e'
@@ -68,15 +76,19 @@ require 'net/http'
 		i=body.split("\"text\":");
 #		puts body
 		j=1;
+		returnstrin=[]
 		while j<i.size
 			b=i[j].split("\"score\":")
 #			puts b[0].index('}')
+			
 			if !b[0].index('}')
-				puts b[0]
+				returnstring=[returnstring,b[0]]
+#				puts b[0]
 			end
 #			puts b[0]
 			j=j+1;
 		end
+		return returnstring
 
 	end
 	def getwordoftheday()
@@ -93,13 +105,72 @@ require 'net/http'
 		string=str[0].delete "\""
 		puts string
 		puts 'Antonym'
-		antonym(string)
+		puts antonym(string)
 		puts 'Example'
-		example(string)
+		puts example(string)
 		puts 'Synonym'
-		synonym(string)
+		puts synonym(string)
 		puts 'Definitions'
-		definitions(string)
+		puts definitions(string)
+	end
+	def play(word)
+		d=definitions(word)
+		s=synonym(word)
+		a=antonym(word)
+#		puts d.size
+		j=d.size
+		if a
+			puts a.size
+			j=j+a.size
+		end
+		if s
+			puts s.size
+			j=j+s.size
+		end
+		puts j
+		d_count=2;
+		a_count=1;
+		s_count=1;
+		count =0;
+		puts 'Definition:'
+		puts d[1]
+		puts 'Your Guess'
+		list=3;
+		while count<j
+			input=STDIN.gets
+			i=0;
+			if s
+			while(i< (s.size))
+				if s[i]==input
+					puts 'You Win'
+					return
+				end
+				i=i+1;
+			end
+			end
+			if input =='quit'
+				puts word
+			end
+			if count%3==1 and d_count<d.size
+				puts 'Definitions:'
+				puts d[d_count]
+				d_count=d_count+1;
+			end
+			
+			if a and count%3==2 and a_count<a.size
+				puts 'Antonym:'
+				puts a[a_count]
+				a_count=a_count+1;
+			end
+			if s and count%3==3 and s_count<s.size
+				puts 'Synonym:'
+				puts s[s_count]
+				s_count=s_count+1;
+			end
+			count=count+1
+#		puts count
+		end
+		puts 'You Lose'
 	end
 
 
@@ -116,33 +187,37 @@ require 'net/http'
 
 	api_key='26878d3b045c48a34970c008e2806530a3909c4a072354f3e'
 	if ARGV[0]=='ant'
-		antonym(ARGV[1])
+		puts antonym(ARGV[1])
 	end
 	if ARGV[0]=='def'
-		definitions(ARGV[1])
+		puts definitions(ARGV[1])
 	end
 	if ARGV[0]=='ex'
-		example(ARGV[1])
+		puts example(ARGV[1])
 	end
 	if ARGV[0]=='syn'
-		synonym(ARGV[1])
+		puts synonym(ARGV[1])
 	end
 	if ARGV[0]==nil
 		getwordoftheday()
 	end
 	if ARGV[0]=='dict'
 		puts 'Example'
-		example(ARGV[1]);
+		puts example(ARGV[1]);
 		a=STDIN.gets
 		puts 'Definitions'
-		definitions(ARGV[1]);
+		puts definitions(ARGV[1]);
 		a=STDIN.gets
 		puts 'Synonym'
-		synonym(ARGV[1]);
+		puts synonym(ARGV[1]);
 		a=STDIN.gets
 		puts 'Antonym'
-		antonym(ARGV[1]);
+		puts antonym(ARGV[1]);
 	end
 	if ARGV[0]=='play'
-#		setofwords=['easy','hysterical']
+		url='http://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&api_key='+api_key
+		body=content(url)
+		a= body.split("\"word\":")
+#puts (a[1].delete('}')).delete('\"')
+		play((a[1].delete('}')).delete('\"'))
 	end
